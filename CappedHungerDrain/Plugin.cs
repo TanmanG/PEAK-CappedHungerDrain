@@ -10,9 +10,9 @@ namespace CappedHungerDrain;
 public class Plugin : BaseUnityPlugin
 {
     internal static new ManualLogSource Logger;
-    
-    public static ConfigEntry<float> maxHunger;
-    public static ConfigEntry<bool> isRounded;
+
+    private static ConfigEntry<float> _maxHunger;
+    private static ConfigEntry<bool> _isRounded;
 
     private void Awake()
     {
@@ -21,8 +21,8 @@ public class Plugin : BaseUnityPlugin
         
         
         // Load the settings.
-        maxHunger = Config.Bind("Settings", "MaxHunger", 0.33f, "Maximum hunger level the player can starve to. Default is 0.33 (33% of the bar).");
-        isRounded = Config.Bind("Settings", "IsRounded", true, "If true, the hunger level will be rounded to the nearest 0.025. If false, it will be set to the exact value.");
+        _maxHunger = Config.Bind("Settings", "MaxHunger", 0.33f, "Maximum hunger level the player can starve to. Default is 0.33 (33% of the bar).");
+        _isRounded = Config.Bind("Settings", "IsRounded", true, "If true, the hunger level will be rounded to the nearest 0.025. If false, it will be set to the exact value.");
         
         // Apply the patches.
         Harmony.CreateAndPatchAll(typeof(Plugin), MyPluginInfo.PLUGIN_GUID);
@@ -42,13 +42,13 @@ public class Plugin : BaseUnityPlugin
         float hunger = __instance.GetCurrentStatus(CharacterAfflictions.STATUSTYPE.Hunger);
         
         // Check if we don't need to do anything.
-        if (hunger < maxHunger.Value) return;
+        if (hunger < _maxHunger.Value) return;
         
         // Calculate the amount to subtract based on the maximum hunger level.
-        float hungerToSubtract = __instance.GetCurrentStatus(CharacterAfflictions.STATUSTYPE.Hunger) - maxHunger.Value;
+        float hungerToSubtract = __instance.GetCurrentStatus(CharacterAfflictions.STATUSTYPE.Hunger) - _maxHunger.Value;
         
         // Check if rounding is enabled.
-        if (isRounded.Value)
+        if (_isRounded.Value)
         {
             hungerToSubtract = (float) Math.Round(hungerToSubtract / 0.025) * 0.025f;
         }
